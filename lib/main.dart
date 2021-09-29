@@ -1,3 +1,4 @@
+import 'package:challenges/job_search_platform/ui/home/home.dart';
 import 'package:challenges/stories_app/ui/home/home_view.dart';
 import 'package:flutter/material.dart';
 
@@ -20,6 +21,11 @@ class MyApp extends StatelessWidget {
                 child: HomeView(),
                 icon: Icon(Icons.amp_stories),
                 label: Text('Stories app'),
+              ),
+              _ChallengeButton(
+                child: JobSearchPlatformHomeView(),
+                icon: Icon(Icons.cases_rounded),
+                label: Text('Job search platform'),
               )
             ],
           ),
