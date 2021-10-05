@@ -15,3 +15,8 @@ To build and run this project:
 
 ### Stories App
 <img src='https://github.com/Freyien/Challenges/blob/main/records/stories_app.gif?raw=true' width="250">
+
+### Job Search Platform
+<img src='https://github.com/Freyien/Challenges/blob/main/records/job_search_platform.gif?raw=true' width="250">
+
+##### **Credits:** https://www.instagram.com/p/CPLAtZmD3hb/
