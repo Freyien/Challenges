@@ -1,3 +1,4 @@
+import 'package:challenges/courses_platform/ui/courses_home/courses_home_view.dart';
 import 'package:challenges/job_search_platform/ui/job_search/job_search_view.dart';
 import 'package:challenges/stories_app/ui/home/home_view.dart';
 import 'package:flutter/material.dart';
@@ -8,28 +9,34 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Material App',
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text('Challenges'),
-          ),
-          body: ListView(
-            padding: EdgeInsets.all(16),
-            children: [
-              _ChallengeButton(
-                child: HomeView(),
-                icon: Icon(Icons.amp_stories),
-                label: Text('Stories app'),
-              ),
-              _ChallengeButton(
-                child: JobSearchView(),
-                icon: Icon(Icons.cases_rounded),
-                label: Text('Job search platform'),
-              )
-            ],
-          ),
-        ));
+      title: 'Material App',
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Challenges'),
+        ),
+        body: ListView(
+          padding: EdgeInsets.all(16),
+          children: [
+            _ChallengeButton(
+              child: HomeView(),
+              icon: Icon(Icons.amp_stories),
+              label: Text('Stories app'),
+            ),
+            _ChallengeButton(
+              child: JobSearchView(),
+              icon: Icon(Icons.cases_rounded),
+              label: Text('Job search platform'),
+            ),
+            _ChallengeButton(
+              child: CoursesHomeView(),
+              icon: Icon(Icons.play_arrow),
+              label: Text('Courses App'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
