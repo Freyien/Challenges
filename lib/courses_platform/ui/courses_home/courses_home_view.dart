@@ -1,3 +1,4 @@
+import 'package:challenges/courses_platform/ui/categories_detail/categories_detail_view.dart';
 import 'package:challenges/courses_platform/ui/recomended_detail/recomended_detail_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -121,7 +122,7 @@ class CoursesHomeView extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  height: 55,
+                  height: 50,
                   margin: const EdgeInsets.symmetric(horizontal: 24),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(15),
@@ -147,13 +148,13 @@ class CoursesHomeView extends StatelessWidget {
                       ),
                       Container(
                         margin: const EdgeInsets.all(2),
-                        height: 50,
-                        width: 50,
+                        height: 45,
+                        width: 45,
                         child: Material(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(10),
                           color: Colors.black,
                           child: InkWell(
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius: BorderRadius.circular(10),
                             onTap: () {},
                             child: const Icon(
                               Icons.sort,
@@ -194,51 +195,81 @@ class CoursesHomeView extends StatelessWidget {
                     physics: BouncingScrollPhysics(),
                     padding: const EdgeInsets.only(left: 8, right: 24),
                     itemBuilder: (context, i) {
-                      return Container(
-                        width: cardWidth,
-                        padding: const EdgeInsets.only(left: 16),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(30),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: Image.asset(
-                                  'lib/courses_platform/assets/4.png',
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
+                      final tag = 'category-$i';
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              transitionDuration: Duration(milliseconds: 900),
+                              pageBuilder: (context, animation, secondaryAnimation) {
+                                return CategoriesDetailView(
+                                  tag: tag,
+                                );
+                              },
+                              transitionsBuilder: (context, animation, _, child) {
+                                if (animation.status == AnimationStatus.reverse) {
+                                  return SlideTransition(
+                                    position: Tween<Offset>(begin: Offset(1, 0), end: Offset(0, 0))
+                                        .animate(animation),
+                                    child: child,
+                                  );
+                                }
+
+                                return child;
+                              },
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: cardWidth,
+                          padding: const EdgeInsets.only(left: 16),
+                          child: Hero(
+                            tag: tag,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(30),
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: Image.asset(
+                                      'lib/courses_platform/assets/4.png',
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    color: Colors.white,
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Text(
+                                          'Design',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                        const SizedBox(height: 3),
+                                        const Text(
+                                          '165 courses',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color: Colors.grey,
+                                            fontSize: 13,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                ],
                               ),
-                              Container(
-                                width: double.infinity,
-                                color: Colors.white,
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Design',
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                    const SizedBox(height: 3),
-                                    const Text(
-                                      '165 courses',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.grey,
-                                        fontSize: 13,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                      maxLines: 1,
-                                    ),
-                                  ],
-                                ),
-                              )
-                            ],
+                            ),
                           ),
                         ),
                       );

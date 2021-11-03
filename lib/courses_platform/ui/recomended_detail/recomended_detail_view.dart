@@ -1,3 +1,9 @@
+import 'package:challenges/courses_platform/ui/recomended_detail/widgets/bubble.dart';
+import 'package:challenges/courses_platform/ui/recomended_detail/widgets/buy_button.dart';
+import 'package:challenges/courses_platform/ui/widgets/animated_size.dart';
+import 'package:challenges/courses_platform/ui/widgets/fade_size_transition.dart';
+import 'package:challenges/courses_platform/ui/widgets/fade_slide_transition.dart';
+import 'package:challenges/courses_platform/ui/widgets/starts.dart';
 import 'package:flutter/material.dart';
 
 class RecomendedDetailView extends StatefulWidget {
@@ -105,8 +111,10 @@ class _Body extends StatefulWidget {
   __BodyState createState() => __BodyState();
 }
 
-class __BodyState extends State<_Body> {
+class __BodyState extends State<_Body> with TickerProviderStateMixin {
   late ScrollController scrollController;
+  late PageController pageController;
+  late TabController tabController;
 
   late double bubleTopPosition;
 
@@ -121,13 +129,21 @@ class __BodyState extends State<_Body> {
     scrollController = ScrollController();
     scrollController.addListener(scrollControllerListener);
 
+    pageController = PageController();
+    pageController.addListener(pageControllerListener);
+
+    tabController = TabController(length: 2, vsync: this);
+
     super.initState();
   }
 
   @override
   void dispose() {
     scrollController.removeListener(scrollControllerListener);
+    scrollController.removeListener(pageControllerListener);
+
     scrollController.dispose();
+    pageController.dispose();
     super.dispose();
   }
 
@@ -152,58 +168,40 @@ class __BodyState extends State<_Body> {
     setState(() {});
   }
 
+  void pageControllerListener() {
+    final page = pageController.page!.round();
+    tabController.animateTo(page);
+  }
+
+  void onVerticalDragUpdate(details) {
+    if (details.primaryDelta! > 0) {
+      contentStatus = ContentStatus.expanded;
+      coursesPhysics = const NeverScrollableScrollPhysics();
+    } else {
+      contentStatus = ContentStatus.contracted;
+      coursesPhysics = const ClampingScrollPhysics();
+    }
+
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onVerticalDragUpdate:
           contentStatus == ContentStatus.expanded || contentStatus == ContentStatus.contracted
-              ? (details) {
-                  if (details.primaryDelta! > 0) {
-                    contentStatus = ContentStatus.expanded;
-                    coursesPhysics = const NeverScrollableScrollPhysics();
-                  } else {
-                    contentStatus = ContentStatus.contracted;
-                    coursesPhysics = const ClampingScrollPhysics();
-                  }
-
-                  setState(() {});
-                }
+              ? onVerticalDragUpdate
               : null,
       child: Stack(
         children: [
-          _Bubble(
-            animation: widget.welcomeAnimation,
+          _Bubbles(
+            welcomeAnimation: widget.welcomeAnimation,
             pageAnimation: widget.pageAnimation,
-            size: 50,
-            beginTopPosition: MediaQuery.of(context).size.height - 300,
-            topPosition: -15 + bubleTopPosition,
-            rightPosition: 120,
-            beginInterval: 0,
-            endInterval: .5,
-          ),
-          _Bubble(
-            animation: widget.welcomeAnimation,
-            pageAnimation: widget.pageAnimation,
-            size: 170,
-            beginTopPosition: MediaQuery.of(context).size.height - 220,
-            topPosition: bubleTopPosition,
-            leftPosition: 8,
-            beginInterval: .2,
-            endInterval: .9,
-          ),
-          _Bubble(
-            animation: widget.welcomeAnimation,
-            pageAnimation: widget.pageAnimation,
-            size: 70,
-            beginTopPosition: MediaQuery.of(context).size.height - 350,
-            topPosition: -170 + bubleTopPosition,
-            rightPosition: 60,
-            beginInterval: .4,
-            endInterval: .9,
+            bubleTopPosition: bubleTopPosition,
           ),
           Column(
             children: [
-              _FadeSizeTransition(
+              FadeSizeTransition(
                 fadeAnimation: Tween<double>(begin: 0, end: 1)
                     .animate(CurvedAnimation(parent: widget.pageAnimation, curve: Interval(.9, 1))),
                 sizeAnimation: Tween<double>(begin: 0, end: 1).animate(
@@ -275,7 +273,7 @@ class __BodyState extends State<_Body> {
                 visible: contentStatus == ContentStatus.expanded,
               ),
               Expanded(
-                child: _FadeSizeTransition(
+                child: FadeSizeTransition(
                   fadeAnimation: Tween<double>(begin: 0, end: 1).animate(
                       CurvedAnimation(parent: widget.welcomeAnimation, curve: Interval(0, .01))),
                   sizeAnimation: Tween<double>(begin: 0, end: 1).animate(
@@ -288,7 +286,7 @@ class __BodyState extends State<_Body> {
                           margin: EdgeInsets.only(bottom: 10, left: 24, right: 24),
                           child: Row(
                             children: [
-                              _FadeSlideTransition(
+                              FadeSlideTransition(
                                 animation: widget.welcomeAnimation,
                                 interval: Interval(0, 0.2),
                                 child: TextButton.icon(
@@ -297,12 +295,12 @@ class __BodyState extends State<_Body> {
                                     padding: EdgeInsets.zero,
                                   ),
                                   onPressed: () {},
-                                  icon: _Stars(),
+                                  icon: Stars(),
                                   label: Text('4.9'),
                                 ),
                               ),
                               const Spacer(),
-                              _FadeSlideTransition(
+                              FadeSlideTransition(
                                 animation: widget.welcomeAnimation,
                                 interval: Interval(0.1, 0.3),
                                 child: TextButton.icon(
@@ -320,7 +318,7 @@ class __BodyState extends State<_Body> {
                                 ),
                               ),
                               const Spacer(),
-                              _FadeSlideTransition(
+                              FadeSlideTransition(
                                 animation: widget.welcomeAnimation,
                                 interval: Interval(0.2, 0.4),
                                 child: TextButton.icon(
@@ -344,7 +342,7 @@ class __BodyState extends State<_Body> {
                         duration: 350,
                         visible: contentStatus == ContentStatus.expanded,
                       ),
-                      _FadeSlideTransition(
+                      FadeSlideTransition(
                         animation: widget.welcomeAnimation,
                         interval: Interval(0.3, 0.5),
                         child: Container(
@@ -359,10 +357,11 @@ class __BodyState extends State<_Body> {
                           ),
                         ),
                       ),
-                      _FadeSlideTransition(
+                      FadeSlideTransition(
                         animation: widget.welcomeAnimation,
                         interval: Interval(0.4, 0.6),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             AnimatedSizeWidget(
                               child: Container(
@@ -391,7 +390,7 @@ class __BodyState extends State<_Body> {
                                       ),
                                     ),
                                     const SizedBox(height: 2),
-                                    _FadeSlideTransition(
+                                    FadeSlideTransition(
                                       animation: widget.welcomeAnimation,
                                       interval: Interval(0.6, 0.7),
                                       child: const Center(
@@ -409,34 +408,29 @@ class __BodyState extends State<_Body> {
                               duration: 200,
                               visible: contentStatus == ContentStatus.expanded,
                             ),
-                            Container(
-                              margin: EdgeInsets.symmetric(horizontal: 24),
-                              child: Row(
-                                children: [
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      primary: Colors.white,
-                                      textStyle: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    onPressed: () {},
-                                    child: const Text('Lessons'),
-                                  ),
-                                  const SizedBox(width: 20),
-                                  TextButton(
-                                    style: TextButton.styleFrom(
-                                      primary: Colors.white,
-                                      textStyle: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      onSurface: Colors.white70,
-                                    ),
-                                    onPressed: null,
-                                    child: const Text('Reviews'),
-                                  ),
+                            DefaultTabController(
+                              length: 2,
+                              child: TabBar(
+                                controller: tabController,
+                                indicator: BoxDecoration(),
+                                labelColor: Colors.white,
+                                labelPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                labelStyle: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                isScrollable: true,
+                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                                unselectedLabelColor: Colors.white54,
+                                unselectedLabelStyle: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white54,
+                                ),
+                                tabs: [
+                                  const Text('Lessons'),
+                                  // const SizedBox(width: 20),
+                                  const Text('Reviews'),
                                 ],
                               ),
                             ),
@@ -445,6 +439,7 @@ class __BodyState extends State<_Body> {
                       ),
                       Expanded(
                         child: PageView(
+                          controller: pageController,
                           children: [
                             NotificationListener<OverscrollIndicatorNotification>(
                               onNotification: (overScroll) {
@@ -468,7 +463,7 @@ class __BodyState extends State<_Body> {
                                 controller: scrollController,
                                 itemCount: 20,
                                 itemBuilder: (context, i) {
-                                  return _FadeSlideTransition(
+                                  return FadeSlideTransition(
                                     animation: widget.welcomeAnimation,
                                     interval: Interval((.6 + (i * .1)).clamp(.6, .8), .8),
                                     beginOffset: Offset(.1, 0),
@@ -546,7 +541,7 @@ class __BodyState extends State<_Body> {
                                             ),
                                           ),
                                         ),
-                                        subtitle: _Stars(size: 17),
+                                        subtitle: Stars(size: 17),
                                         trailing: Column(
                                           children: [
                                             Padding(
@@ -576,10 +571,10 @@ class __BodyState extends State<_Body> {
                           ],
                         ),
                       ),
-                      _FadeSlideTransition(
+                      FadeSlideTransition(
                         animation: widget.welcomeAnimation,
                         interval: Interval(.9, 1),
-                        child: _BuyButton(),
+                        child: BuyButton(),
                       ),
                     ],
                   ),
@@ -593,195 +588,53 @@ class __BodyState extends State<_Body> {
   }
 }
 
-class _Bubble extends StatefulWidget {
-  const _Bubble({
+class _Bubbles extends StatelessWidget {
+  const _Bubbles({
     Key? key,
-    required this.animation,
+    required this.welcomeAnimation,
     required this.pageAnimation,
-    required this.size,
-    required this.beginTopPosition,
-    required this.topPosition,
-    this.rightPosition,
-    this.leftPosition,
-    required this.beginInterval,
-    required this.endInterval,
+    required this.bubleTopPosition,
   }) : super(key: key);
 
-  final Animation<double> animation;
+  final Animation<double> welcomeAnimation;
   final Animation<double> pageAnimation;
-  final double size;
-  final double beginTopPosition;
-  final double topPosition;
-  final double? rightPosition;
-  final double? leftPosition;
-  final double beginInterval;
-  final double endInterval;
-
-  @override
-  __BubbleState createState() => __BubbleState();
-}
-
-class __BubbleState extends State<_Bubble> {
-  late Animation<double> welcomeAnimation;
-
-  @override
-  void initState() {
-    welcomeAnimation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-      parent: widget.animation,
-      curve: Interval(
-        widget.beginInterval,
-        widget.endInterval,
-        curve: Curves.easeInOutQuad,
-      ),
-    ));
-    super.initState();
-  }
+  final double bubleTopPosition;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: welcomeAnimation,
-      builder: (context, _) {
-        return Positioned(
-          top: widget.beginTopPosition -
-              (welcomeAnimation.value * widget.beginTopPosition) -
-              widget.topPosition,
-          left: widget.leftPosition,
-          right: widget.rightPosition,
-          child: ClipOval(
-            child: Container(
-              height: widget.size,
-              width: widget.size,
-              color: Color(0xff1E2338),
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _Stars extends StatelessWidget {
-  const _Stars({Key? key, this.size = 20}) : super(key: key);
-
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: List.generate(
-        5,
-        (index) => Icon(
-          Icons.star,
-          color: Colors.deepOrangeAccent.withOpacity(.9),
-          size: size,
+    return Stack(
+      children: [
+        Bubble(
+          animation: welcomeAnimation,
+          pageAnimation: pageAnimation,
+          size: 50,
+          beginTopPosition: MediaQuery.of(context).size.height - 300,
+          topPosition: -15 + bubleTopPosition,
+          rightPosition: 120,
+          beginInterval: 0,
+          endInterval: .5,
         ),
-      ),
-    );
-  }
-}
-
-class AnimatedSizeWidget extends StatelessWidget {
-  const AnimatedSizeWidget({
-    Key? key,
-    required this.visible,
-    required this.child,
-    required this.duration,
-  }) : super(key: key);
-
-  final bool visible;
-  final Widget child;
-  final int duration;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: Duration(milliseconds: duration),
-      transitionBuilder: (child, animation) {
-        return _FadeSizeTransition(
-          fadeAnimation: animation,
-          sizeAnimation: animation,
-          child: child,
-        );
-      },
-      child: visible ? child : const SizedBox.shrink(),
-    );
-  }
-}
-
-class _FadeSizeTransition extends StatelessWidget {
-  const _FadeSizeTransition({
-    Key? key,
-    required this.fadeAnimation,
-    required this.sizeAnimation,
-    required this.child,
-  }) : super(key: key);
-
-  final Animation<double> fadeAnimation;
-  final Animation<double> sizeAnimation;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: fadeAnimation,
-      child: SizeTransition(
-        sizeFactor: sizeAnimation,
-        child: child,
-      ),
-    );
-  }
-}
-
-class _FadeSlideTransition extends StatelessWidget {
-  const _FadeSlideTransition({
-    Key? key,
-    required this.animation,
-    required this.interval,
-    required this.child,
-    this.beginOffset = const Offset(0, .1),
-  }) : super(key: key);
-
-  final Offset beginOffset;
-  final Animation<double> animation;
-  final Interval interval;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: Tween<double>(begin: 0, end: 1)
-          .animate(CurvedAnimation(parent: animation, curve: interval)),
-      child: SlideTransition(
-        position: Tween<Offset>(begin: beginOffset, end: Offset(0, 0))
-            .animate(CurvedAnimation(parent: animation, curve: interval)),
-        child: child,
-      ),
-    );
-  }
-}
-
-class _BuyButton extends StatelessWidget {
-  const _BuyButton({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 24, right: 24, bottom: 12, top: 12),
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          minimumSize: Size(double.infinity, 50),
-          textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(17),
-          ),
-          primary: Colors.deepOrangeAccent.withOpacity(.9),
+        Bubble(
+          animation: welcomeAnimation,
+          pageAnimation: pageAnimation,
+          size: 170,
+          beginTopPosition: MediaQuery.of(context).size.height - 220,
+          topPosition: bubleTopPosition,
+          leftPosition: 8,
+          beginInterval: .2,
+          endInterval: .9,
         ),
-        onPressed: () {},
-        child: const Text('Buy now'),
-      ),
+        Bubble(
+          animation: welcomeAnimation,
+          pageAnimation: pageAnimation,
+          size: 70,
+          beginTopPosition: MediaQuery.of(context).size.height - 350,
+          topPosition: -170 + bubleTopPosition,
+          rightPosition: 60,
+          beginInterval: .4,
+          endInterval: .9,
+        ),
+      ],
     );
   }
 }
